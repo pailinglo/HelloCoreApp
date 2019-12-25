@@ -1,0 +1,73 @@
+﻿@*@model HelloCoreApp.Models.Employee*@
+
+@model HomeDetailsViewModel
+
+@{
+    ViewBag.Title = "Employee Details";
+    var photoPath = "/images/" + (Model.Employee.PhotoPath ?? "noimage.jpg");
+}
+
+<div class="row justify-content-center m-3">
+    <div class="col-sm-8">
+        <div class="card">
+            <div class="card-header">
+                <h1>@Model.Employee.Name</h1>
+            </div>
+
+            <div class="card-body text-center">
+                <img class="card-img-top" src="@photoPath" />
+
+                <h4>Employee ID : @Model.Employee.Id</h4>
+                <h4>Email : @Model.Employee.Email</h4>
+                <h4>Department : @Model.Employee.Department</h4>
+
+            </div>
+            <div class="card-footer text-center">
+                <a asp-controller="home" asp-action="Index" class="btn btn-primary">Back</a>
+                <a asp-controller="home" asp-action="Edit" class="btn btn-primary">Edit</a>
+                <a href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--This part will be rendered specifically in Scripts section of the _Layout.cshtml-->
+@section Scripts{
+    <script src="~/js/CustomScript.js"></script>
+}
+
+
+@*<div>
+        <p>
+            Name: @Model.Name
+        </p>
+        <p>
+            Depoartment: @Model.Department
+        </p>
+
+    </div>*@
+
+
+@*<h1>@ViewBag.pageTitle</h1>
+    <div>
+        <p>
+            @ViewBag.employee.Name
+        </p>
+        <p>
+            @ViewBag.employee.Department
+        </p>
+    </div>*@
+
+
+@*<h1>@ViewData["pageTitle"]</h1>
+    <div>
+        @{
+            var employee = @ViewData["employee"] as HelloCoreApp.Models.Employee;
+        }
+        <p>
+            @employee.Name
+        </p>
+        <p>
+            @employee.Department
+        </p>
+    </div>*@

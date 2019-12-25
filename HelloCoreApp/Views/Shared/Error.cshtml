@@ -1,0 +1,37 @@
+﻿
+@if (ViewBag.ErrorTitle==null)
+{
+
+    <h3>
+        An occured while processing your request. The support
+        team is notified and we are working on the fix
+    </h3>
+    <h5>Please contact us on customerservice@fly.com</h5>
+    <hr />
+}
+else
+{
+    <h3 class="text-danger">@ViewBag.ErrorTitle</h3>
+    <h6 class="text-danger">@ViewBag.ErrorMessage</h6>
+    <hr />
+}
+
+<!-- move this part to log -->
+@*<h3>Exception Details:</h3>
+    <div class="alert alert-danger">
+        <h5>Exception Path</h5>
+        <hr />
+        <p>@ViewBag.ExceptionPath</p>
+    </div>
+
+    <div class="alert alert-danger">
+        <h5>Exception Message</h5>
+        <hr />
+        <p>@ViewBag.ExceptionMessage</p>
+    </div>
+
+    <div class="alert alert-danger">
+        <h5>Exception Stack Trace</h5>
+        <hr />
+        <p>@ViewBag.StackTrace</p>
+    </div>*@
