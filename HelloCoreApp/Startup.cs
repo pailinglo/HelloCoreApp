@@ -66,7 +66,19 @@ namespace HelloCoreApp
                     policy => policy.RequireClaim("Delete Role"));
 
                 //claim type is case-insensitive, however claim value is case-sensitive.
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role","true"));
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role","true"));
+
+                //use function to create policy: either in (Admin role and has Edit Role claim) or is SuperAdmin role.
+                
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(context =>
+                    context.User.IsInRole("Admin") &&
+                    context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") ||
+                    context.User.IsInRole("Super Admin")
+                ));
+                
+
+                options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("Admin"));
+            
             });
 
             //to change the default route of Access denied page:
