@@ -100,7 +100,8 @@ namespace HelloCoreApp.Controllers
                 Email = user.Email,
                 City = user.City,
                 Roles = userRoles,
-                Claims = userClaims.Select(x => x.Value).ToList()
+                Claims = userClaims.Where(x=>x.Value=="true").Select(x => x.Type).ToList()
+
 
             };
 
@@ -146,18 +147,31 @@ namespace HelloCoreApp.Controllers
                 ViewBag.ErrorMessage = $"User Id {id} Can't be found";
                 return View("NotFound");
             }
-
-            var result = await userManager.DeleteAsync(user);
-
-            if (result.Succeeded)
+            try
             {
-                return RedirectToAction("ListUsers", "Administration");
-            }
+                var result = await userManager.DeleteAsync(user);
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ListUsers", "Administration");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
+            catch(DbUpdateException ex)
+            {
+                
+                ViewBag.ErrorTitle = "Unable to delete user";
+                ViewBag.ErrorMessage = "Delete the user claims first before delete the user";
+
+                logger.LogError("Update Datebase error", ex);
+
+                return View("Error");
+            }
+            
             return View("ListUsers");
         }
 
@@ -445,12 +459,12 @@ namespace HelloCoreApp.Controllers
 
                 // If the user has the claim, set IsSelected property to true, so the checkbox
                 // next to the claim is checked on the UI
-                if (existingUserClaims.Any(c => c.Type == claim.Type))
+                if (existingUserClaims.Any(c => c.Type == claim.Type && c.Value == "true"))
                 {
                     userClaim.IsSelected = true;
                 }
 
-                model.Cliams.Add(userClaim);
+                model.Claims.Add(userClaim);
             }
 
             return View(model);
@@ -480,7 +494,7 @@ namespace HelloCoreApp.Controllers
 
             // Add all the claims that are selected on the UI
             result = await userManager.AddClaimsAsync(user,
-                model.Cliams.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.ClaimType)));
+                model.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, "true")));
 
             if (!result.Succeeded)
             {

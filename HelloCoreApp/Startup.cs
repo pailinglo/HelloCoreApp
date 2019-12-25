@@ -65,7 +65,8 @@ namespace HelloCoreApp
                 options.AddPolicy("DeleteRolePolicy",
                     policy => policy.RequireClaim("Delete Role"));
 
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+                //claim type is case-insensitive, however claim value is case-sensitive.
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role","true"));
             });
 
             //to change the default route of Access denied page:
