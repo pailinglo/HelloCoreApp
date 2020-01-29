@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace HelloCoreApp.Security
 {
-    //this piece of code is alien to me.
+    //One-to-one relation: one requirement is handled by one handler, then you can specify the requirement type to fulfill.
+    //public class PermissionHandler : IAuthorizationHandler <-- multiple requirement to fulfill in one handler.
     public class CanEditOnlyOtherAdminRolesAndClaimsHandler : 
         AuthorizationHandler<ManageAdminRolesAndClaimsRequirement>
     {
@@ -34,7 +35,11 @@ namespace HelloCoreApp.Security
                 context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") &&
                 adminIdBeingEdited.ToLower() != loggedInAdminId.ToLower())
             {
+                //using context.Succeed to indicate this requirement passes the check.
                 context.Succeed(requirement);
+
+                //generally, we don't handle failure since other handlers for the same requirement may succeed.
+                //the reason for multiple hanlders for the same requirement: allow multiple different ways to pass the requirement.
             }
 
             return Task.CompletedTask;
