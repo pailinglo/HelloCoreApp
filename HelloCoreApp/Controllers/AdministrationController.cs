@@ -218,7 +218,6 @@ namespace HelloCoreApp.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> EditRole(string id)
         {
             IdentityRole role = await roleManager.FindByIdAsync(id);
@@ -251,7 +250,6 @@ namespace HelloCoreApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> EditRole(EditRoleViewModel model)
         {
             IdentityRole role = await roleManager.FindByIdAsync(model.Id);
@@ -368,8 +366,10 @@ namespace HelloCoreApp.Controllers
         }
 
 
-
+        //here we implemented a custom authorization requirement which allows an Admin user to manage roles only if 
+        //it is not him/herself. the code is in Security/ManageAdminRolesAndClaimsRequirement.cs and Startup.cs. (add policy and register the class).
         [HttpGet]
+        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> ManageUserRoles(string userId)
         {
             ApplicationUser user = await userManager.FindByIdAsync(userId);
@@ -399,6 +399,7 @@ namespace HelloCoreApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "EditRolePolicy")]
         public async Task<IActionResult> ManageUserRoles(List<UserRolesViewModel> model, string userId)
         {
             ApplicationUser user = await userManager.FindByIdAsync(userId);

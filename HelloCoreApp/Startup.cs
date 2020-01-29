@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using HelloCoreApp.Security;
 
 namespace HelloCoreApp
 {
@@ -69,14 +70,19 @@ namespace HelloCoreApp
                 //options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role","true"));
 
                 //use function to create policy: either in (Admin role and has Edit Role claim) or is SuperAdmin role.
-                
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(context =>
-                    context.User.IsInRole("Admin") &&
-                    context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") ||
-                    context.User.IsInRole("Super Admin")
-                ));
-                
 
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(context =>
+                //    context.User.IsInRole("Admin") &&
+                //    context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") ||
+                //    context.User.IsInRole("Super Admin")
+                //));
+
+                //instead of using function, we use customized authorization requirement:
+                
+                options.AddPolicy("EditRolePolicy", policy =>
+                    policy.AddRequirements(new ManageAdminRolesAndClaimsRequirement()));
+               
+                               
                 options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("Admin"));
             
             });
@@ -115,6 +121,8 @@ namespace HelloCoreApp
             // a Singleton service is created only one time per application and that single instance is used throughout the application life time.
             //services.AddSingleton<IEmployeeRepository, MockEmployeeRepository>();
             services.AddScoped<IEmployeeRepository, SQLEmployeeRepository>();
+            //custom authorization requirement:
+            services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
