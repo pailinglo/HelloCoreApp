@@ -1,29 +1,27 @@
-﻿{
+{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:49840",
+      "applicationUrl": "http://127.0.0.1:44380/",
       "sslPort": 0
     }
   },
   "profiles": {
-    //When we run the project from Visual Studio by pressing CTRL + F5 or just F5, by default, the profile with "commandName": "IISExpress" is used
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development" //this will overide the one set up on system level (control panel => environment => system varialbes)
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    // if we run the project using .NET Core CLI (dotnet run), the profile with the  "commandName": "Project" is used. 
     "HelloCoreApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
-      }
+      },
+      "applicationUrl": "http://localhost:5000"
     }
   }
 }

@@ -107,6 +107,14 @@ namespace HelloCoreApp
 
 
             });
+
+            services.AddAuthentication().AddGoogle(options =>
+            {
+                options.ClientId = "924068766498-av93lkto87p8frb3d3er3fkb3ut45t5s.apps.googleusercontent.com";
+                options.ClientSecret = "xRQLLFkRdO47803wyHnneuhk";
+                
+            });
+
             //.AddXmlSerializerFormatters();    //???? what's the usage of AddXmlSerializerFormatters
 
             //???Difference between AddMvcCore and AddMvc
@@ -124,6 +132,8 @@ namespace HelloCoreApp
             //custom authorization requirement:
             //check: https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies?view=aspnetcore-3.1
             services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
+            // Register the second handler. either handler fulfill the requirement then the user can pass the check.
+            services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
