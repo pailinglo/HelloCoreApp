@@ -218,6 +218,7 @@ namespace HelloCoreApp.Controllers
                     }
 
                     // Add a login (i.e insert a row for the user in AspNetUserLogins table)
+                    // AspNetUserLogins table is used to hold information about 3rd party/external logins.
                     await userManager.AddLoginAsync(user, info);
                     await signInManager.SignInAsync(user, isPersistent: false);
 
