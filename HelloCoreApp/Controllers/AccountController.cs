@@ -196,6 +196,8 @@ namespace HelloCoreApp.Controllers
             }
             // If there is no record in AspNetUserLogins table, the user may not have
             // a local account
+            // In case user uses two external logins with the same e-mail, then AspNetUserLogins will have two records
+            // for Google and Facebook for example, however they will link to the same user Id in AspNetUsers table.
             else
             {
                 // Get the email claim value
@@ -213,7 +215,7 @@ namespace HelloCoreApp.Controllers
                             UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
                             Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                         };
-
+                        //create a user in AspNetUsers table.
                         await userManager.CreateAsync(user);
                     }
 
