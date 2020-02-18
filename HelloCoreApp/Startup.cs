@@ -48,6 +48,8 @@ namespace HelloCoreApp
                             options.Password.RequireDigit = false;
                             options.Password.RequireUppercase = false;
                             options.Password.RequireNonAlphanumeric = false;
+                            //require user's e-mail confirmed to be able to sign in.
+                            options.SignIn.RequireConfirmedEmail = true;
                         }
                     ).AddEntityFrameworkStores<AppDbContext>();  //adds an implementation of entity framework for identity information store.
 

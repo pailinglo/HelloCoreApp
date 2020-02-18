@@ -101,9 +101,23 @@ namespace HelloCoreApp.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            //to display external login buttons.
+            model.ExternalLogins =
+                (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (ModelState.IsValid)
             {
-                
+                //display customized error message if e-mail is not confirmed yet. 
+                var user = await userManager.FindByEmailAsync(model.Email);
+                //also check if password is correct 
+                if (user != null && !user.EmailConfirmed &&
+                            (await userManager.CheckPasswordAsync(user, model.Password)))
+                {
+                    ModelState.AddModelError(string.Empty, "Email not confirmed yet");
+                    return View(model);
+                }
+
+                //if e-mail is not confirmed sign in result won't succeed.
                 var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 
                 if (result.Succeeded)
@@ -185,6 +199,26 @@ namespace HelloCoreApp.Controllers
                 return View("Login", loginViewModel);
             }
 
+            // This part is to check if e-mail confirmed yet.
+            // Get the email claim from external login provider (Google, Facebook etc)
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            ApplicationUser user = null;
+
+            if (email != null)
+            {
+                // Find the user
+                user = await userManager.FindByEmailAsync(email);
+
+                // If email is not confirmed, display login view with validation error
+                if (user != null && !user.EmailConfirmed)
+                {
+                    ModelState.AddModelError(string.Empty, "Email not confirmed yet");
+                    return View("Login", loginViewModel);
+                }
+            }
+
+
+
             // If the user already has a login (i.e if there is a record in AspNetUserLogins
             // table) then sign-in the user with this external login provider
             var signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
@@ -200,14 +234,10 @@ namespace HelloCoreApp.Controllers
             // for Google and Facebook for example, however they will link to the same user Id in AspNetUsers table.
             else
             {
-                // Get the email claim value
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-
+                
                 if (email != null)
                 {
                     // Create a new user without password if we do not have a user already
-                    var user = await userManager.FindByEmailAsync(email);
-
                     if (user == null)
                     {
                         user = new ApplicationUser
