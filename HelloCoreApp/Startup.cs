@@ -51,7 +51,8 @@ namespace HelloCoreApp
                             //require user's e-mail confirmed to be able to sign in.
                             options.SignIn.RequireConfirmedEmail = true;
                         }
-                    ).AddEntityFrameworkStores<AppDbContext>();  //adds an implementation of entity framework for identity information store.
+                    ).AddEntityFrameworkStores<AppDbContext>()  //adds an implementation of entity framework for identity information store.
+                    .AddDefaultTokenProviders();    //to generate token for user e-mail confirmation.
 
 
             //configure password options:

@@ -8,6 +8,7 @@ using HelloCoreApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,15 +18,19 @@ namespace HelloCoreApp.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly ILogger<AccountController> logger;
 
         //dependency injection
         //use ctor + tab twice to bring up constructor code snippt
         //inject both user manager and sign in manager
         //use ctrl + Period for a field to bring up code for create and initialize a field.
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<AccountController> logger)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -54,14 +59,31 @@ namespace HelloCoreApp.Controllers
                 // SignInManager and redirect to index action of HomeController
                 if (result.Succeeded)
                 {
+                    //generate confirmation e-mail
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account",
+                        new { userId = user.Id, token = token }, Request.Scheme);
+                    
+                    //log the confirmation link, how to send e-mail will be shown later. 
+                    logger.Log(LogLevel.Warning, confirmationLink);
+
                     //In case it is Admin users login and register an user, it so, display all users.
                     if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                     {
                         return RedirectToAction("ListUsers", "Administration");
                     }
                     //else Sign the user in and redirect to home page.
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("index", "home");
+                    //await signInManager.SignInAsync(user, isPersistent: false);
+                    //return RedirectToAction("index", "home");
+
+                    //instead of redirecting user to home page, we ask user to confirm e-mail.
+                    ViewBag.ErrorTitle = "Registration successful";
+                    ViewBag.ErrorMessage = "Before you can Login, please confirm your " +
+                            "email, by clicking on the confirmation link we have emailed you";
+                    return View("Error");
+
+
                 }
                 // If there are any errors, add them to the ModelState object
                 // which will be displayed by the validation summary tag helper
@@ -72,6 +94,35 @@ namespace HelloCoreApp.Controllers
             }
             return View(model);
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if(userId == null || token == null)
+            {
+                return RedirectToAction("index", "home");
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"The User Id {userId} is invalid";
+                return View("NotFound");
+            }
+            //validate if an email confirmation token matches the specified user.
+            //which flips the flag in dbo.AspNetUsers table "EmailConfirmed" to be true if matched.
+            var result = await userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                return View();
+            }
+            //if not succeeded:
+            ViewBag.ErrorMessage = "E-mail can't be confirmed";
+            return View("Error");
+        }
+
 
 
         [AllowAnonymous]
