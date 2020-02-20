@@ -50,16 +50,22 @@ namespace HelloCoreApp
                             options.Password.RequireNonAlphanumeric = false;
                             //require user's e-mail confirmed to be able to sign in.
                             options.SignIn.RequireConfirmedEmail = true;
+                            options.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
                         }
                     ).AddEntityFrameworkStores<AppDbContext>()  //adds an implementation of entity framework for identity information store.
-                    .AddDefaultTokenProviders();    //to generate token for user e-mail confirmation.
+                    .AddDefaultTokenProviders()    //to generate token for user e-mail confirmation.
+                    .AddTokenProvider<CustomEmailConfirmationTokenProvider<ApplicationUser>>("CustomEmailConfirmation");
+
 
             // Set token life span to 5 hours
             // However all kinds of tokens e.g. password reset token and e-mail confirmation token will have the same life span.
             // to have different life span we need to have customized DataProtectionTokenProvider class (will be discussed later)
             services.Configure<DataProtectionTokenProviderOptions>(o =>
-                o.TokenLifespan = TimeSpan.FromHours(5));
+                o.TokenLifespan = TimeSpan.FromHours(1));
 
+            // Changes token lifespan of just the Email Confirmation Token type
+            services.Configure<CustomEmailConfirmationTokenProviderOptions>(o =>
+                    o.TokenLifespan = TimeSpan.FromDays(3));
 
             //configure password options:
             //services.Configure<IdentityOptions>(options =>
