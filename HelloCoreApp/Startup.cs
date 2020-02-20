@@ -54,6 +54,12 @@ namespace HelloCoreApp
                     ).AddEntityFrameworkStores<AppDbContext>()  //adds an implementation of entity framework for identity information store.
                     .AddDefaultTokenProviders();    //to generate token for user e-mail confirmation.
 
+            // Set token life span to 5 hours
+            // However all kinds of tokens e.g. password reset token and e-mail confirmation token will have the same life span.
+            // to have different life span we need to have customized DataProtectionTokenProvider class (will be discussed later)
+            services.Configure<DataProtectionTokenProviderOptions>(o =>
+                o.TokenLifespan = TimeSpan.FromHours(5));
+
 
             //configure password options:
             //services.Configure<IdentityOptions>(options =>
