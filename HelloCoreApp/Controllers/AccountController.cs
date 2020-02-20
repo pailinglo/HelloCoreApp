@@ -431,5 +431,52 @@ namespace HelloCoreApp.Controllers
             // Display validation errors if model state is not valid
             return View(model);
         }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                //get the current user
+                var user = await userManager.GetUserAsync(User);
+
+                if (user == null)
+                {
+                    RedirectToAction("Login");
+                }
+
+                var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                
+                // The new password did not meet the complexity rules or
+                // the current password is incorrect. Add these errors to
+                // the ModelState and rerender ChangePassword view
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View();
+                }
+                
+                // Upon successfully changing the password refresh sign-in cookie
+                await signInManager.RefreshSignInAsync(user);
+                return View("ChangePasswordConfirmation");
+
+            }
+
+
+            return View(model);
+        }
+
+
+
     }
 }
