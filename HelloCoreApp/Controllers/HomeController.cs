@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using HelloCoreApp.Security;
 
 namespace HelloCoreApp.Controllers
 {
@@ -36,6 +38,7 @@ namespace HelloCoreApp.Controllers
         //value of read-only property can be initiated only during declaration or constructor.
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IWebHostEnvironment hostingEnvironment;
+        private readonly IDataProtector protector;
 
 
         // Inject IEmployeeRepository using Constructor Injection
@@ -43,10 +46,13 @@ namespace HelloCoreApp.Controllers
         // need to register MockEmployeeRepository class with the dependency injection container in ASP.NET core in ConfigureServices() method in Startup class
         // or we will get error msg "Unable to resolve service for type 'HelloCoreApp.Models.IEmployeeRepository"
         public HomeController(IEmployeeRepository employeeRepository,
-             IWebHostEnvironment hostingEnvironment)
+             IWebHostEnvironment hostingEnvironment,
+             IDataProtectionProvider dataProtectionProvider,
+             DataProtectionPurposeStrings dataProtectionPurposeStrings)
         {
             _employeeRepository = employeeRepository;
             this.hostingEnvironment = hostingEnvironment;
+            protector = dataProtectionProvider.CreateProtector(dataProtectionPurposeStrings.EmployeeIdRouteValue);
         }
 
         // Retrieve employee name and return
@@ -57,9 +63,16 @@ namespace HelloCoreApp.Controllers
         [AllowAnonymous]
         public ViewResult Index()
         {
+            var model = _employeeRepository.GetAllEmployee()
+                        //map each element of a sequence into a new form
+                        .Select(e =>
+                        {
+                            e.EncryptedId = protector.Protect(e.Id.ToString());
+                            return e;
+                        });
 
-            return View(_employeeRepository.GetAllEmployee());
-        
+
+            return View(model);
         }
 
         //public JsonResult Details()
@@ -72,14 +85,15 @@ namespace HelloCoreApp.Controllers
         //[Route("[action]/{id?}")]
         [Route("{id?}")]
         [AllowAnonymous]
-        public ViewResult Details(int id)
+        public ViewResult Details(string id)
         {
             //throw new Exception("test");
-            Employee employee = _employeeRepository.GetEmployee(id);
+            int employeeId = Convert.ToInt32(protector.Unprotect(id));
+            Employee employee = _employeeRepository.GetEmployee(employeeId);
             if(employee == null)
             {
                 Response.StatusCode = 404;
-                return View("EmployeeNotFound", id);
+                return View("EmployeeNotFound", employeeId);
             }
 
             //ViewData: loosely typed, use string as index.

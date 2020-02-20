@@ -22,7 +22,7 @@
        /[controller]/[action]/ changed to /abcde/[controller]/[action]
         "View" is the latest TagHelper.
         -->
-                    <a asp-controller="home" asp-action="details" asp-route-id="@employee.Id" class="btn btn-primary m-1">View</a>
+                    <a asp-controller="home" asp-action="details" asp-route-id="@employee.EncryptedId" class="btn btn-primary m-1">View</a>
                     @*<a href = "@Url.Action("details","home",new { id = employee.Id})" class="btn btn-primary">View2</a>
         @Html.ActionLink("View3","details","home",new { id = employee.Id })
         <a href="/home/details/@employee.Id" class="btn btn-primary">View4</a>*@

@@ -155,6 +155,9 @@ namespace HelloCoreApp
             services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
             // Register the second handler. either handler fulfill the requirement then the user can pass the check.
             services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
+
+            services.AddSingleton<DataProtectionPurposeStrings>();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
