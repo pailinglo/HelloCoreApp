@@ -169,8 +169,10 @@ namespace HelloCoreApp.Controllers
                 }
 
                 //if e-mail is not confirmed sign in result won't succeed.
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                //set lockoutOnFailure flag to be true such that if user fail too many times that he will be locked out.
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, true);
                 
+                //during the lock out even user provides correct user name and password, the result still fail
                 if (result.Succeeded)
                 {
                     //to prevent open redirect attack, check if Url is local before redirect. or use LocalRedirect.
@@ -181,6 +183,14 @@ namespace HelloCoreApp.Controllers
                     else
                         return RedirectToAction("index", "home");
                 }
+
+                //display lockout screen
+                if (result.IsLockedOut)
+                {
+                    return View("AccountLocked");
+                }
+
+
                 //display error if failed:
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
                 
@@ -413,6 +423,11 @@ namespace HelloCoreApp.Controllers
                     var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
                     if (result.Succeeded)
                     {
+                        if(await userManager.IsLockedOutAsync(user))
+                        {
+                            await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
+                        }
+
                         return View("ResetPasswordConfirmation");
                     }
                     // Display validation errors. For example, password reset token already

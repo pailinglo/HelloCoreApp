@@ -51,6 +51,9 @@ namespace HelloCoreApp
                             //require user's e-mail confirmed to be able to sign in.
                             options.SignIn.RequireConfirmedEmail = true;
                             options.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
+                            //allow user to try a number of times before lock out and wait for a certain amount of time
+                            options.Lockout.MaxFailedAccessAttempts = 5;
+                            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                         }
                     ).AddEntityFrameworkStores<AppDbContext>()  //adds an implementation of entity framework for identity information store.
                     .AddDefaultTokenProviders()    //to generate token for user e-mail confirmation.
