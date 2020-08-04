@@ -14,7 +14,7 @@ namespace HelloCoreApp.ViewModels
         [Required]
         [EmailAddress]
         [Remote(action: "IsEmailInUse", controller: "Account")]
-        [ValidEmailDomain(allowedDomain: "fly.com", ErrorMessage = "Email domain must be fly.com")]
+        //[ValidEmailDomain(allowedDomain: "fly.com", ErrorMessage = "Email domain must be fly.com")]
         public string Email { get; set; }
 
         [Required]

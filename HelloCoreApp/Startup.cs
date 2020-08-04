@@ -129,14 +129,15 @@ namespace HelloCoreApp
             services.AddAuthentication()
                 .AddGoogle(options =>
             {
-                options.ClientId = "924068766498-av93lkto87p8frb3d3er3fkb3ut45t5s.apps.googleusercontent.com";
-                options.ClientSecret = "xRQLLFkRdO47803wyHnneuhk";
+                //revoke the old credentials and save the new credential in environment variables
+                options.ClientId = _config["Google:ClientID"];
+                options.ClientSecret = _config["Google:ClientSecret"];
 
             }).AddFacebook(options =>
             {
-                options.ClientId = "191304868604179";
-                options.ClientSecret = "301964dd94a3bef84e41a3cee4cf97c9";
-
+                //revoke the old credentials and save the new credential in environment variables
+                options.ClientId = _config["Facebook:AppID"];
+                options.ClientSecret = _config["Facebook:AppSecret"];
             });
 
             //.AddXmlSerializerFormatters();    //???? what's the usage of AddXmlSerializerFormatters
